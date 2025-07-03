@@ -19,8 +19,8 @@ export const mockTractors = [
     id: 3,
     name: "New Holland T9.700",
     model: "T9 Series",
-    status: "active",
+    status: "available",
     location: { lat: 40.7505, lng: -73.9934 },
-    lastSeen: "Active now"
+    lastSeen: "1 minute ago"
   }
 ];

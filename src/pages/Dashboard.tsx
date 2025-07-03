@@ -1,4 +1,21 @@
+import styled from 'styled-components';
 import { TractorList } from "../components/TractorList";
+
+const DashboardContainer = styled.div.attrs({
+  className: 'p-8 grid grid-cols-2 gap-8 max-w-[1200px] mx-auto w-full'
+})``;
+
+const Card = styled.div.attrs({
+  className: 'bg-white/95 backdrop-blur-md rounded-2xl p-8 shadow-lg'
+})``;
+
+const LatestPosition = styled.div.attrs({
+  className: 'mt-4'
+})``;
+
+const LatestPositionText = styled.p.attrs({
+  className: 'text-sm text-gray-500'
+})``;
 
 export function Dashboard({ tractors, onRequestTractor, activeTractor, gpsData }: {
   tractors: any[];
@@ -7,38 +24,38 @@ export function Dashboard({ tractors, onRequestTractor, activeTractor, gpsData }
   gpsData: any[];
 }) {
   return (
-    <div className="dashboard">
+    <DashboardContainer>
       <TractorList
         tractors={tractors}
         onRequestTractor={onRequestTractor}
         activeTractor={activeTractor}
       />
-      <div className="card">
-        <h2>Live Tracking</h2>
+      <Card>
+        <h2 className="text-lg mb-2 font-bold">Live Tracking</h2>
         {activeTractor ? (
           <div>
             <h3>Tracking: {activeTractor.name}</h3>
             <p>GPS Points Received: {gpsData.length}</p>
             <p>Status: {gpsData.length > 0 ? 'Moving' : 'Waiting for GPS data...'}</p>
             {gpsData.length > 0 && (
-              <div style={{ marginTop: '1rem' }}>
+              <LatestPosition>
                 <p>Latest Position:</p>
-                <p style={{ fontSize: '0.875rem', color: '#718096' }}>
+                <LatestPositionText>
                   Lat: {gpsData[gpsData.length - 1]?.lat.toFixed(6)}
-                </p>
-                <p style={{ fontSize: '0.875rem', color: '#718096' }}>
+                </LatestPositionText>
+                <LatestPositionText>
                   Lng: {gpsData[gpsData.length - 1]?.lng.toFixed(6)}
-                </p>
-                <p style={{ fontSize: '0.875rem', color: '#718096' }}>
+                </LatestPositionText>
+                <LatestPositionText>
                   Speed: {gpsData[gpsData.length - 1]?.speed.toFixed(1)} km/h
-                </p>
-              </div>
+                </LatestPositionText>
+              </LatestPosition>
             )}
           </div>
         ) : (
           <p>Select a tractor to start tracking</p>
         )}
-      </div>
-    </div>
+      </Card>
+    </DashboardContainer>
   );
 }

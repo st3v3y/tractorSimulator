@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
+import styled from 'styled-components';
 
 // Extend ImportMeta to include env for Vite
 interface ImportMetaEnv {
@@ -10,6 +11,26 @@ interface ImportMetaEnv {
 interface ImportMeta {
   env: ImportMetaEnv;
 }
+
+const MapContainer = styled.div.attrs({
+  className: 'flex-1 min-h-[600px] h-screen w-full relative'
+})``;
+
+const MapDiv = styled.div.attrs({
+  className: 'w-full h-[400px] min-h-[300px] rounded-xl'
+})``;
+
+const MapControls = styled.div.attrs({
+  className: 'absolute top-4 right-4 z-[1000] flex flex-col gap-2'
+})``;
+
+const ControlButton = styled.button.attrs({
+  className: 'p-3 bg-white/95 border-none rounded-lg cursor-pointer shadow-md transition-all duration-200 hover:bg-white hover:-translate-y-0.5'
+})``;
+
+const StatusBox = styled.div.attrs({
+  className: 'absolute bottom-4 left-4 bg-white/90 px-4 py-2 rounded-lg text-sm shadow-md'
+})``;
 
 export function MapView({ activeTractor, gpsData, onCenterMap }: {
   activeTractor: any;
@@ -160,36 +181,26 @@ export function MapView({ activeTractor, gpsData, onCenterMap }: {
   };
 
   return (
-    <div className="map-container">
-      <div ref={mapRef} className="map" />
-      <div className="map-controls">
-        <button className="control-button" onClick={handleCenterMap} title="Center on Tractor">
+    <MapContainer>
+      <MapDiv ref={mapRef} />
+      <MapControls>
+        <ControlButton onClick={handleCenterMap} title="Center on Tractor">
           🎯
-        </button>
-        <button className="control-button" onClick={handleZoomIn} title="Zoom In">
+        </ControlButton>
+        <ControlButton onClick={handleZoomIn} title="Zoom In">
           ➕
-        </button>
-        <button className="control-button" onClick={handleZoomOut} title="Zoom Out">
+        </ControlButton>
+        <ControlButton onClick={handleZoomOut} title="Zoom Out">
           ➖
-        </button>
-      </div>
+        </ControlButton>
+      </MapControls>
       {gpsData.length > 0 && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '1rem',
-            left: '1rem',
-            background: 'rgba(255, 255, 255, 0.9)',
-            padding: '0.5rem 1rem',
-            borderRadius: '8px',
-            fontSize: '0.875rem',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          }}>
+        <StatusBox>
           Speed: {gpsData[gpsData.length - 1]?.speed?.toFixed(1) || '0'} km/h
           <br />
           Points: {gpsData.length}
-        </div>
+        </StatusBox>
       )}
-    </div>
+    </MapContainer>
   );
 }

@@ -19,7 +19,6 @@ function App() {
   const [notification, setNotification] = useState<string | null>(null);
   const [websocket, setWebsocket] = useState<MockWebSocket | null>(null);
   // Define the GPSPoint type if not already imported
-  // type GPSPoint = { lat: number; lng: number; [key: string]: any };
 
   const gpsPathRef = useRef<GPSPoint[]>([]);
   const gpsIndexRef = useRef<number>(0);
@@ -32,48 +31,48 @@ function App() {
   });
 
   const handleRequestTractor = useCallback(async (tractor) => {
-      try {
-          setActiveTractor(tractor);
-          setGpsData([]);
-          
-          // Generate GPS path for simulation
-          const gpsPath = generateGPSPath(tractor.location.lat, tractor.location.lng);
-          gpsPathRef.current = gpsPath;
-          gpsIndexRef.current = 0;
+    try {
+        setActiveTractor(tractor);
+        setGpsData([]);
+        
+        // Generate GPS path for simulation
+        const gpsPath = generateGPSPath(tractor.location.lat, tractor.location.lng);
+        gpsPathRef.current = gpsPath;
+        gpsIndexRef.current = 0;
 
-          // Create mock WebSocket connection
-          const ws = new MockWebSocket();
-          setWebsocket(ws);
+        // Create mock WebSocket connection
+        const ws = new MockWebSocket();
+        setWebsocket(ws);
 
-          // Set up WebSocket listener
-          ws.addEventListener('message', (event) => {
-              const data = JSON.parse(event.data);
-              if (data.type === 'gps_update') {
-                  setGpsData(prev => [...prev, data.payload]);
-              }
-          });
+        // Set up WebSocket listener
+        ws.addEventListener('message', (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'gps_update') {
+                setGpsData(prev => [...prev, data.payload]);
+            }
+        });
 
-          // Simulate GPS data streaming
-          const interval = setInterval(() => {
-              if (gpsIndexRef.current < gpsPath.length) {
-                  ws.emit('message', {
-                      type: 'gps_update',
-                      payload: gpsPath[gpsIndexRef.current],
-                      tractorId: tractor.id
-                  });
-                  gpsIndexRef.current++;
-              } else {
-                  clearInterval(interval);
-              }
-          }, 1000);
+        // Simulate GPS data streaming
+        const interval = setInterval(() => {
+            if (gpsIndexRef.current < gpsPath.length) {
+                ws.emit('message', {
+                    type: 'gps_update',
+                    payload: gpsPath[gpsIndexRef.current],
+                    tractorId: tractor.id
+                });
+                gpsIndexRef.current++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 1000);
 
-          setNotification(`Started tracking ${tractor.name}`);
-          navigate('/map');
+        setNotification(`Started tracking ${tractor.name}`);
+        navigate('/map');
 
-      } catch (error) {
-          console.error('Error requesting tractor:', error);
-          setNotification('Error requesting tractor');
-      }
+    } catch (error) {
+        console.error('Error requesting tractor:', error);
+        setNotification('Error requesting tractor');
+    }
   }, [navigate]);
 
   const closeNotification = useCallback(() => {
@@ -81,14 +80,14 @@ function App() {
   }, []);
 
   if (isLoading) {
-      return (
-          <div className="app-container">
-              <Header currentRoute={currentRoute} navigate={navigate} />
-              <div className="main-content">
-                  <LoadingSpinner />
-              </div>
-          </div>
-      );
+    return (
+        <div className="app-container">
+            <Header currentRoute={currentRoute} navigate={navigate} />
+            <div className="main-content">
+                <LoadingSpinner />
+            </div>
+        </div>
+    );
   }
 
   return (
