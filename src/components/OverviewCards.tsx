@@ -2,9 +2,7 @@ import { useTractorTracking } from "../context/TractorTrackingContext";
 import { Card } from "./ui/Card";
 import { IconTractor, IconCheck, IconChartBar, IconTool } from "@tabler/icons-react";
 
-export function OverviewCards({
-}: {
-}) {
+export function OverviewCards() {
   const { tractors, gpsData } = useTractorTracking();
   const totalTractors = tractors.length;
   const activeTractors = gpsData.length > 0 ? 1 : 0; // Currently only one active tractor is tracked at a time
