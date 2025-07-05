@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { Button } from './ui/Button';
+import { useTractorTracking } from '../context/TractorTrackingContext';
 
 const TractorListContainer = styled.div.attrs({
   className: 'flex flex-col gap-4'
@@ -31,18 +32,11 @@ const StatusBadge = styled.span.attrs<{ status: string }>(props => ({
       : 'bg-gray-200 text-gray-800')
 }))``;
 
-export function TractorList({
-  tractors,
-  onRequestTractor,
-  activeTractor,
-}: {
-  tractors: any[];
-  onRequestTractor: (tractorId: string) => void;
-  activeTractor: any;
-}) {
+export function TractorList() {
+  const { handleRequestTractor, activeTractor, tractors } = useTractorTracking();
   return (
     <>
-      <h2 className='text-lg mb-2 font-bold'>Available Tractors</h2>
+      <h2 className="text-lg mb-2 font-bold">Available Tractors</h2>
       <TractorListContainer>
         {tractors?.map((tractor) => (
           <TractorItem key={tractor.id}>
@@ -53,11 +47,9 @@ export function TractorList({
               </TractorDetails>
             </TractorInfo>
             <div className="flex items-center gap-4 flex-row-reverse sm:flex-row justify-between">
-              <StatusBadge status={tractor.status}>
-                {tractor.status.toUpperCase()}
-              </StatusBadge>
+              <StatusBadge status={tractor.status}>{tractor.status.toUpperCase()}</StatusBadge>
               <Button
-                onClick={() => onRequestTractor(tractor)}
+                onClick={() => handleRequestTractor(tractor)}
                 disabled={tractor.status !== 'available' || activeTractor?.id === tractor.id}>
                 {activeTractor?.id === tractor.id ? 'Tracking' : 'Request'}
               </Button>

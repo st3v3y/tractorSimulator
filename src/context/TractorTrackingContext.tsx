@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useRef, useCallback } from 'react';
 import { generateGPSPath, GPSPoint } from '../utils/gpsUtils';
 import { MockWebSocket } from '../mock/MockWebsocket';
+import { Tractor } from '../mock/MockTracktors';
 
 interface TractorTrackingContextProps {
   activeTractor: any;
@@ -20,29 +21,37 @@ export const useTractorTracking = () => {
   return ctx;
 };
 
-export const TractorTrackingProvider: React.FC<{ children: React.ReactNode, tractors: any[], isLoading: boolean }> = ({ children, tractors, isLoading }) => {
-  const [activeTractor, setActiveTractor] = useState<any>(null);
+export const TractorTrackingProvider: React.FC<{
+  children: React.ReactNode;
+  tractors: Tractor[];
+  isLoading: boolean;
+}> = ({ children, tractors, isLoading }) => {
+  const [activeTractor, setActiveTractor] = useState<Tractor | null>(null);
   const [gpsData, setGpsData] = useState<GPSPoint[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
   const [websocket, setWebsocket] = useState<MockWebSocket | null>(null);
   const gpsPathRef = useRef<GPSPoint[]>([]);
   const gpsIndexRef = useRef<number>(0);
 
-  const handleRequestTractor = useCallback(async (tractor: any) => {
+  const handleRequestTractor = useCallback(async (tractor: Tractor) => {
     try {
       setActiveTractor(tractor);
       setGpsData([]);
+      
       const gpsPath = generateGPSPath(tractor.location.lat, tractor.location.lng);
       gpsPathRef.current = gpsPath;
       gpsIndexRef.current = 0;
+      
       const ws = new MockWebSocket();
       setWebsocket(ws);
+
       ws.addEventListener('message', (event) => {
         const data = JSON.parse(event.data);
         if (data.type === 'gps_update') {
           setGpsData((prev) => [...prev, data.payload]);
         }
       });
+
       const interval = setInterval(() => {
         if (gpsIndexRef.current < gpsPath.length) {
           ws.emit('message', {
@@ -55,6 +64,7 @@ export const TractorTrackingProvider: React.FC<{ children: React.ReactNode, trac
           clearInterval(interval);
         }
       }, 1000);
+      
       setNotification(`Started tracking ${tractor.name}`);
     } catch (error) {
       setNotification('Error requesting tractor');
@@ -64,15 +74,16 @@ export const TractorTrackingProvider: React.FC<{ children: React.ReactNode, trac
   const closeNotification = useCallback(() => setNotification(null), []);
 
   return (
-    <TractorTrackingContext.Provider value={{
-      activeTractor,
-      gpsData,
-      notification,
-      isLoading,
-      tractors,
-      handleRequestTractor,
-      closeNotification,
-    }}>
+    <TractorTrackingContext.Provider
+      value={{
+        activeTractor,
+        gpsData,
+        notification,
+        isLoading,
+        tractors,
+        handleRequestTractor,
+        closeNotification,
+      }}>
       {children}
     </TractorTrackingContext.Provider>
   );

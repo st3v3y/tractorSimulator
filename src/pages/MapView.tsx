@@ -1,7 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import styled from 'styled-components';
+import { IconChartBar, IconCrosshair, IconMenu, IconMinus, IconPlus, IconTractor, IconX } from "@tabler/icons-react";
+import { Card } from "../components/ui/Card";
+import { Tractor } from "../mock/MockTracktors";
+import { useTractorTracking } from "../context/TractorTrackingContext";
 
 // Extend ImportMeta to include env for Vite
 interface ImportMetaEnv {
@@ -12,12 +16,15 @@ interface ImportMeta {
   env: ImportMetaEnv;
 }
 
-const MapContainer = styled.div.attrs({
-  className: 'flex-1 min-h-[600px] h-screen w-full relative'
-})``;
+const MapContainer = styled.div.attrs<{ panelCollapsed?: boolean }>((props) => ({
+  className: [
+    'h-full min-h-screen relative transition-all duration-300',
+    props.panelCollapsed ? 'w-full flex-none' : 'flex-1 w-auto',
+  ].join(' '),
+}))<{ panelCollapsed?: boolean }>``;
 
 const MapDiv = styled.div.attrs({
-  className: 'w-full h-[400px] min-h-[300px] rounded-xl'
+  className: 'w-full h-full min-h-[300px] rounded-xl'
 })``;
 
 const MapControls = styled.div.attrs({
@@ -25,22 +32,30 @@ const MapControls = styled.div.attrs({
 })``;
 
 const ControlButton = styled.button.attrs({
-  className: 'p-3 bg-white/95 border-none rounded-lg cursor-pointer shadow-md transition-all duration-200 hover:bg-white hover:-translate-y-0.5'
+  className: 'p-3 bg-white/95 border-none rounded-lg cursor-pointer shadow-md transition-colors duration-200 hover:bg-slate-100'
 })``;
 
 const StatusBox = styled.div.attrs({
   className: 'absolute bottom-4 left-4 bg-white/90 px-4 py-2 rounded-lg text-sm shadow-md'
 })``;
 
-export function MapView({ activeTractor, gpsData, onCenterMap }: {
-  activeTractor: any;
-  gpsData: any[];
-  onCenterMap: () => void;
-}) {
+const ToggleButton = styled.button.attrs({
+  className: 'absolute top-4 left-4 bg-white p-2 rounded-lg shadow-md hover:bg-gray-50 z-10 cursor-pointer transition-colors duration-200',
+})``;
+
+const SlidingPanel = styled.div.attrs<{ collapsed?: boolean; }>((props) => ({
+  className: `bg-white border-r border-gray-200 transition-all duration-300 h-full flex-shrink-0 ${
+    props.collapsed ? 'w-0 min-w-0 overflow-hidden' : 'w-96 min-w-[24rem]'
+  }`,
+}))``;
+
+export function MapView() {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const pathRef = useRef<[number, number][]>([]);
+  const [panelCollapsed, setPanelCollapsed] = useState(false);
+  const { activeTractor, gpsData } = useTractorTracking();
 
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -157,6 +172,17 @@ export function MapView({ activeTractor, gpsData, onCenterMap }: {
     return () => cancelAnimationFrame(animationFrameId);
   }, [gpsData]);
 
+  // Resize map when panelCollapsed changes
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      // Wait for the CSS transition to finish (300ms)
+      const timeout = setTimeout(() => {
+        mapInstanceRef.current?.resize();
+      }, 320);
+      return () => clearTimeout(timeout);
+    }
+  }, [panelCollapsed]);
+
   const handleCenterMap = () => {
     if (activeTractor && mapInstanceRef.current) {
       mapInstanceRef.current.flyTo({
@@ -164,7 +190,6 @@ export function MapView({ activeTractor, gpsData, onCenterMap }: {
         zoom: 18,
         duration: 1500,
       });
-      onCenterMap();
     }
   };
 
@@ -181,26 +206,89 @@ export function MapView({ activeTractor, gpsData, onCenterMap }: {
   };
 
   return (
-    <MapContainer>
-      <MapDiv ref={mapRef} />
-      <MapControls>
-        <ControlButton onClick={handleCenterMap} title="Center on Tractor">
-          🎯
-        </ControlButton>
-        <ControlButton onClick={handleZoomIn} title="Zoom In">
-          ➕
-        </ControlButton>
-        <ControlButton onClick={handleZoomOut} title="Zoom Out">
-          ➖
-        </ControlButton>
-      </MapControls>
-      {gpsData.length > 0 && (
-        <StatusBox>
-          Speed: {gpsData[gpsData.length - 1]?.speed?.toFixed(1) || '0'} km/h
-          <br />
-          Points: {gpsData.length}
-        </StatusBox>
-      )}
-    </MapContainer>
+    <div className="flex h-full w-full">
+      <SlidingPanel collapsed={panelCollapsed}>
+        <div className="p-6 h-full overflow-y-auto">
+          <h2 className="text-lg font-semibold mb-4">Tractor Details</h2>
+          {activeTractor ? (
+            <>
+              <Card>
+                <div className="flex items-center gap-3 mb-3">
+                  <IconTractor className="w-6 h-6 text-green-600" />
+                  <div>
+                    <h3 className="font-semibold text-gray-800">{activeTractor.name}</h3>
+                    <p className="text-sm text-gray-600">{activeTractor.model}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Location:</span>
+                    <span className="text-sm font-medium">
+                      {activeTractor.location.lat}. {activeTractor.location.lng}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Status:</span>
+                    {activeTractor.status}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Speed:</span>
+                    <span className="text-sm font-medium">
+                      {gpsData[gpsData.length - 1]?.speed?.toFixed(1) || '0'} km/h
+                    </span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card>
+                <div className="flex items-center gap-2 mb-4">
+                  <IconChartBar className="w-5 h-5 text-green-600" />
+                  <h3 className="font-semibold text-gray-800">Performance Chart</h3>
+                </div>
+                {/* 
+              <ChartContainer>
+                <div className="text-center text-gray-500">
+                  <BarChart3 className="w-12 h-12 mx-auto mb-2" />
+                  <p>AmCharts integration goes here</p>
+                  <p className="text-sm">Distance & Speed over Time</p>
+                </div>
+              </ChartContainer> */}
+              </Card>
+            </>
+          ) : (
+            <Card>
+              <div className="text-center text-gray-500">
+                <p className="text-lg font-semibold">No Tractor Selected</p>
+                <p className="text-sm">Select a tractor from the dashboard to see details</p>
+              </div>
+            </Card>
+          )}
+        </div>
+      </SlidingPanel>
+      <MapContainer panelCollapsed={panelCollapsed}>
+        <MapDiv ref={mapRef} />
+        <ToggleButton onClick={() => setPanelCollapsed(!panelCollapsed)}>
+          {panelCollapsed ? <IconMenu className="w-5 h-5" /> : <IconX className="w-5 h-5" />}
+        </ToggleButton>
+        <MapControls>
+          <ControlButton onClick={handleCenterMap} title="Center on Tractor">
+            <IconCrosshair className="w-5 h-5" />
+          </ControlButton>
+          <ControlButton onClick={handleZoomIn} title="Zoom In">
+            <IconPlus className="w-5 h-5" />
+          </ControlButton>
+          <ControlButton onClick={handleZoomOut} title="Zoom Out">
+            <IconMinus className="w-5 h-5" />
+          </ControlButton>
+        </MapControls>
+        {gpsData.length > 0 && (
+          <StatusBox>
+            Speed: {gpsData[gpsData.length - 1]?.speed?.toFixed(1) || '0'} km/h
+            <br />
+            Points: {gpsData.length}
+          </StatusBox>
+        )}
+      </MapContainer>
+    </div>
   );
 }

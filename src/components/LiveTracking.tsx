@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Button } from "./ui/Button";
 import { useLocation } from "wouter";
+import { useTractorTracking } from "../context/TractorTrackingContext";
 
 const LatestPosition = styled.div.attrs({
   className: 'mt-4',
@@ -10,8 +11,9 @@ const LatestPositionText = styled.p.attrs({
   className: 'text-sm text-gray-500',
 })``;
 
-export function LiveTracking({ activeTractor, gpsData }: { activeTractor: any; gpsData: any[] }) {
+export function LiveTracking() {
   const [, navigate] = useLocation();
+  const { activeTractor, gpsData } = useTractorTracking();
   
   return (
     <>

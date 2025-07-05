@@ -12,27 +12,15 @@ const DashboardContainer = styled.div.attrs({
   }
 `;
 
-export function Dashboard({ tractors, onRequestTractor, activeTractor, gpsData }: {
-  tractors: any[];
-  onRequestTractor: (tractorId: string) => void;
-  activeTractor: any;
-  gpsData: any[];
-}) {
+export function Dashboard() {
   return (
     <DashboardContainer>
       <OverviewCards />
       <Card>
-        <TractorList
-          tractors={tractors}
-          onRequestTractor={onRequestTractor}
-          activeTractor={activeTractor}
-        />
+        <TractorList />
       </Card>
       <Card>
-       <LiveTracking
-          activeTractor={activeTractor}
-          gpsData={gpsData}
-        />
+       <LiveTracking />
       </Card>
     </DashboardContainer>
   );

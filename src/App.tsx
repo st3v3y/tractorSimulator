@@ -21,10 +21,7 @@ const MainContent = styled.div.attrs({
 
 function AppContent({ currentRoute, navigate, tractors, isLoading }: any) {
   const {
-    activeTractor,
-    gpsData,
     notification,
-    handleRequestTractor,
     closeNotification,
   } = useTractorTracking();
 
@@ -44,21 +41,10 @@ function AppContent({ currentRoute, navigate, tractors, isLoading }: any) {
       <SidebarMenu currentRoute={currentRoute} navigate={navigate} />
       <MainContent>
         {currentRoute === '/' && (
-          <Dashboard
-            tractors={tractors || []}
-            onRequestTractor={handleRequestTractor}
-            activeTractor={activeTractor}
-            gpsData={gpsData}
-          />
+          <Dashboard />
         )}
         {currentRoute === '/map' && (
-          <MapView
-            activeTractor={activeTractor}
-            gpsData={gpsData}
-            onCenterMap={function (): void {
-              throw new Error('Function not implemented.');
-            }}
-          />
+          <MapView />
         )}
       </MainContent>
       {notification && <Notification message={notification} onClose={closeNotification} />}
