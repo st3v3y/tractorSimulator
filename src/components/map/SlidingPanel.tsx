@@ -38,7 +38,8 @@ export function SlidingPanel({ collapsed = false }: { collapsed?: boolean }) {
               <div className="flex justify-between">
                 <span className="text-sm text-gray-600">Location:</span>
                 <span className="text-sm font-medium">
-                  {activeTractor.location.lat}. {activeTractor.location.lng}
+                  {gpsData[gpsData.length - 1]?.lat.toFixed(6)}.{' '}
+                  {gpsData[gpsData.length - 1]?.lng.toFixed(6)}
                 </span>
               </div>
               <div className="flex justify-between">
