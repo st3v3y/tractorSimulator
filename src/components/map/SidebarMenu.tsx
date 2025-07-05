@@ -1,6 +1,6 @@
 import { IconLayoutDashboard, IconMap2, IconSettings, IconTractor, IconUser } from '@tabler/icons-react';
 import styled from 'styled-components';
-import avatarImg from '../assets/avatar.jpg';
+import avatarImg from '../../assets/avatar.jpg';
 
 const HeaderContainer = styled.header.attrs({
   className:

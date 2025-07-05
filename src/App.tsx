@@ -1,6 +1,5 @@
 import { useLocation } from 'wouter';
 import './App.css';
-import { useQuery } from './hooks/useQuery';
 import { SidebarMenu } from './components/map/SidebarMenu';
 import { Notification } from './components/ui/Notification';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
@@ -9,7 +8,10 @@ import { MapView } from './pages/MapView';
 import styled from 'styled-components';
 import { TractorTrackingProvider } from './context/TractorTrackingContext';
 import { useTractorTracking } from './context/TractorTrackingContext';
-import { mockTractors } from './mock/MockTracktors';
+import { mockTractors, Tractor } from './mock/MockTracktors';
+import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient();
 
 const AppContainer = styled.div.attrs({
   className: 'flex h-full bg-gray-100',
@@ -52,11 +54,14 @@ function AppContent({ currentRoute, navigate, tractors, isLoading }: any) {
   );
 }
 
-function App() {
+function AppWithData() {
   const [currentRoute, navigate] = useLocation();
-  const { data: tractors, isLoading } = useQuery('tractors', async () => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return mockTractors;
+  const { data: tractors, isLoading } = useQuery<Tractor[]>({
+    queryKey: ['tractors'],
+    queryFn: async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return mockTractors;
+    },
   });
 
   return (
@@ -68,6 +73,14 @@ function App() {
         isLoading={isLoading}
       />
     </TractorTrackingProvider>
+  );
+}
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppWithData />
+    </QueryClientProvider>
   );
 }
 
