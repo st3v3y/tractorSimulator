@@ -1,15 +1,12 @@
 import styled from 'styled-components';
-
-const Card = styled.div.attrs({
-  className: 'bg-white/95 backdrop-blur-md rounded-2xl p-8 shadow-lg'
-})``;
+import { Button } from './ui/Button';
 
 const TractorListContainer = styled.div.attrs({
   className: 'flex flex-col gap-4'
 })``;
 
 const TractorItem = styled.div.attrs({
-  className: 'flex justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200'
+  className: 'flex flex-col sm:flex-row justify-between sm:items-center gap-2 p-4 bg-gray-50 rounded border border-gray-200'
 })``;
 
 const TractorInfo = styled.div.attrs({
@@ -34,11 +31,6 @@ const StatusBadge = styled.span.attrs<{ status: string }>(props => ({
       : 'bg-gray-200 text-gray-800')
 }))``;
 
-const RequestButton = styled.button.attrs({
-  className:
-    'px-4 py-2 rounded-md border-none font-medium transition-all duration-200 cursor-pointer text-white bg-green-500 hover:bg-green-600 hover:-translate-y-0.5 disabled:bg-gray-400 disabled:cursor-not-allowed'
-})``;
-
 export function TractorList({
   tractors,
   onRequestTractor,
@@ -49,7 +41,7 @@ export function TractorList({
   activeTractor: any;
 }) {
   return (
-    <Card>
+    <>
       <h2 className='text-lg mb-2 font-bold'>Available Tractors</h2>
       <TractorListContainer>
         {tractors?.map((tractor) => (
@@ -60,19 +52,19 @@ export function TractorList({
                 {tractor.model} • {tractor.lastSeen}
               </TractorDetails>
             </TractorInfo>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-row-reverse sm:flex-row justify-between">
               <StatusBadge status={tractor.status}>
                 {tractor.status.toUpperCase()}
               </StatusBadge>
-              <RequestButton
+              <Button
                 onClick={() => onRequestTractor(tractor)}
                 disabled={tractor.status !== 'available' || activeTractor?.id === tractor.id}>
                 {activeTractor?.id === tractor.id ? 'Tracking' : 'Request'}
-              </RequestButton>
+              </Button>
             </div>
           </TractorItem>
         ))}
       </TractorListContainer>
-    </Card>
+    </>
   );
 }

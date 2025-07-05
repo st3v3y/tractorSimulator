@@ -22,5 +22,21 @@ export const mockTractors = [
     status: "available",
     location: { lat: 40.7505, lng: -73.9934 },
     lastSeen: "1 minute ago"
+  },
+  {
+    id: 4,
+    name: "Fendt 1050 Vario",
+    model: "Vario Series",
+    status: "maintenance",
+    location: { lat: 40.7306, lng: -73.9352 },
+    lastSeen: "3 minutes ago"
+  },
+  {
+    id: 5,
+    name: "Claas Xerion 5000",
+    model: "Xerion Series",
+    status: "available",
+    location: { lat: 40.7128, lng: -74.0060 },
+    lastSeen: "10 minutes ago"
   }
 ];

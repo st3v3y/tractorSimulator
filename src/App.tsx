@@ -1,125 +1,88 @@
-import { useState, useRef, useCallback } from 'react'
-import './App.css'
-import { useLocation } from 'wouter'
-import { mockTractors } from './mock/MockTracktors'
-import { generateGPSPath, GPSPoint } from './utils/gpsUtils'
-import { MockWebSocket } from './mock/MockWebsocket'
-import { Header } from './components/Header'
-import { Notification } from './components/Notification';
-import { LoadingSpinner } from './components/LoadingSpinner'
-import { Dashboard } from './pages/Dashboard'
-import { MapView } from './pages/MapView'
-import { useQuery } from './hooks/useQuery'
+import { useLocation } from 'wouter';
+import './App.css';
+import { mockTractors } from './mock/MockTracktors';
+import { useQuery } from './hooks/useQuery';
+import { SidebarMenu } from './components/SidebarMenu';
+import { Notification } from './components/ui/Notification';
+import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import { Dashboard } from './pages/Dashboard';
+import { MapView } from './pages/MapView';
+import styled from 'styled-components';
+import { TractorTrackingProvider } from './context/TractorTrackingContext';
+import { useTractorTracking } from './context/TractorTrackingContext';
 
+const AppContainer = styled.div.attrs({
+  className: 'flex h-full bg-gray-100',
+})``;
 
-function App() {
-  const [currentRoute, navigate] = useLocation();
-  const [activeTractor, setActiveTractor] = useState(null);
-  const [gpsData, setGpsData] = useState<GPSPoint[]>([]);
-  const [notification, setNotification] = useState<string | null>(null);
-  const [websocket, setWebsocket] = useState<MockWebSocket | null>(null);
-  // Define the GPSPoint type if not already imported
+const MainContent = styled.div.attrs({
+  className: 'flex-1 flex flex-col h-full',
+})``;
 
-  const gpsPathRef = useRef<GPSPoint[]>([]);
-  const gpsIndexRef = useRef<number>(0);
-
-  // Fetch tractors using mock TanStack Query
-  const { data: tractors, isLoading } = useQuery('tractors', async () => {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return mockTractors;
-  });
-
-  const handleRequestTractor = useCallback(async (tractor) => {
-    try {
-        setActiveTractor(tractor);
-        setGpsData([]);
-        
-        // Generate GPS path for simulation
-        const gpsPath = generateGPSPath(tractor.location.lat, tractor.location.lng);
-        gpsPathRef.current = gpsPath;
-        gpsIndexRef.current = 0;
-
-        // Create mock WebSocket connection
-        const ws = new MockWebSocket();
-        setWebsocket(ws);
-
-        // Set up WebSocket listener
-        ws.addEventListener('message', (event) => {
-            const data = JSON.parse(event.data);
-            if (data.type === 'gps_update') {
-                setGpsData(prev => [...prev, data.payload]);
-            }
-        });
-
-        // Simulate GPS data streaming
-        const interval = setInterval(() => {
-            if (gpsIndexRef.current < gpsPath.length) {
-                ws.emit('message', {
-                    type: 'gps_update',
-                    payload: gpsPath[gpsIndexRef.current],
-                    tractorId: tractor.id
-                });
-                gpsIndexRef.current++;
-            } else {
-                clearInterval(interval);
-            }
-        }, 1000);
-
-        setNotification(`Started tracking ${tractor.name}`);
-        navigate('/map');
-
-    } catch (error) {
-        console.error('Error requesting tractor:', error);
-        setNotification('Error requesting tractor');
-    }
-  }, [navigate]);
-
-  const closeNotification = useCallback(() => {
-      setNotification(null);
-  }, []);
+function AppContent({ currentRoute, navigate, tractors, isLoading }: any) {
+  const {
+    activeTractor,
+    gpsData,
+    notification,
+    handleRequestTractor,
+    closeNotification,
+  } = useTractorTracking();
 
   if (isLoading) {
     return (
-        <div className="app-container">
-            <Header currentRoute={currentRoute} navigate={navigate} />
-            <div className="main-content">
-                <LoadingSpinner />
-            </div>
-        </div>
+      <AppContainer>
+        <SidebarMenu currentRoute={currentRoute} navigate={navigate} />
+        <MainContent>
+          <LoadingSpinner />
+        </MainContent>
+      </AppContainer>
     );
   }
 
   return (
-      <div className="app-container">
-          <Header currentRoute={currentRoute} navigate={navigate} />
-          <div className="main-content">
-              {currentRoute === '/' && (
-                  <Dashboard 
-                      tractors={tractors || []}
-                      onRequestTractor={handleRequestTractor}
-                      activeTractor={activeTractor}
-                      gpsData={gpsData}
-                  />
-              )}
-              {currentRoute === '/map' && (
-                  <MapView 
-                      activeTractor={activeTractor}
-                      gpsData={gpsData} 
-                      onCenterMap={function (): void {
-                          throw new Error('Function not implemented.')
-                      } }                  
-                    />
-              )}
-          </div>
-          {notification && (
-              <Notification 
-                  message={notification} 
-                  onClose={closeNotification}
-              />
-          )}
-      </div>
+    <AppContainer>
+      <SidebarMenu currentRoute={currentRoute} navigate={navigate} />
+      <MainContent>
+        {currentRoute === '/' && (
+          <Dashboard
+            tractors={tractors || []}
+            onRequestTractor={handleRequestTractor}
+            activeTractor={activeTractor}
+            gpsData={gpsData}
+          />
+        )}
+        {currentRoute === '/map' && (
+          <MapView
+            activeTractor={activeTractor}
+            gpsData={gpsData}
+            onCenterMap={function (): void {
+              throw new Error('Function not implemented.');
+            }}
+          />
+        )}
+      </MainContent>
+      {notification && <Notification message={notification} onClose={closeNotification} />}
+    </AppContainer>
   );
 }
 
-export default App
+function App() {
+  const [currentRoute, navigate] = useLocation();
+  const { data: tractors, isLoading } = useQuery('tractors', async () => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return mockTractors;
+  });
+
+  return (
+    <TractorTrackingProvider tractors={tractors || []} isLoading={isLoading}>
+      <AppContent
+        currentRoute={currentRoute}
+        navigate={navigate}
+        tractors={tractors || []}
+        isLoading={isLoading}
+      />
+    </TractorTrackingProvider>
+  );
+}
+
+export default App;
