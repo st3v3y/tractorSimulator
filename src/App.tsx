@@ -1,6 +1,5 @@
 import { useLocation } from 'wouter';
 import './App.css';
-import { mockTractors } from './mock/MockTractors';
 import { useQuery } from './hooks/useQuery';
 import { SidebarMenu } from './components/SidebarMenu';
 import { Notification } from './components/ui/Notification';
@@ -10,6 +9,7 @@ import { MapView } from './pages/MapView';
 import styled from 'styled-components';
 import { TractorTrackingProvider } from './context/TractorTrackingContext';
 import { useTractorTracking } from './context/TractorTrackingContext';
+import { mockTractors } from './mock/MockTracktors';
 
 const AppContainer = styled.div.attrs({
   className: 'flex h-full bg-gray-100',

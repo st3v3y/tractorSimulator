@@ -1,6 +1,6 @@
 import { useTractorTracking } from "../context/TractorTrackingContext";
 import { Card } from "./ui/Card";
-import { IconTractor, IconCheck, IconTools, IconChartBar, IconTool } from "@tabler/icons-react";
+import { IconTractor, IconCheck, IconChartBar, IconTool } from "@tabler/icons-react";
 
 export function OverviewCards({
 }: {
@@ -14,7 +14,7 @@ export function OverviewCards({
       ? Math.round((activeTractors / (totalTractors - inMaintenanceTractors)) * 100)
       : 0;
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 h-16">
+    <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-8">
       <Card>
         <OverviewItem
           title={'Total Tractors'}
