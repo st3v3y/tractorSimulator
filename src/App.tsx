@@ -1,7 +1,7 @@
 import { useLocation } from 'wouter';
 import './App.css';
 import { useQuery } from './hooks/useQuery';
-import { SidebarMenu } from './components/SidebarMenu';
+import { SidebarMenu } from './components/map/SidebarMenu';
 import { Notification } from './components/ui/Notification';
 import { LoadingSpinner } from './components/ui/LoadingSpinner';
 import { Dashboard } from './pages/Dashboard';
