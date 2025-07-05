@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useRef, useCallback } from 'react';
 import { generateGPSPath, GPSPoint } from '../utils/gpsUtils';
 import { MockWebSocket } from '../mock/MockWebsocket';
-import { Tractor } from '../mock/MockTracktors';
+import { Tractor, TractorStatus } from '../mock/MockTractors';
 
 interface TractorTrackingContextProps {
   activeTractor: any;
@@ -32,6 +32,7 @@ export const TractorTrackingProvider: React.FC<{
   const [websocket, setWebsocket] = useState<MockWebSocket | null>(null);
   const gpsPathRef = useRef<GPSPoint[]>([]);
   const gpsIndexRef = useRef<number>(0);
+  const statusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleRequestTractor = useCallback(async (tractor: Tractor) => {
     try {
@@ -49,6 +50,23 @@ export const TractorTrackingProvider: React.FC<{
         const data = JSON.parse(event.data);
         if (data.type === 'gps_update') {
           setGpsData((prev) => [...prev, data.payload]);
+          setActiveTractor((prev) => {
+            if (!prev) return null;
+            if (prev.status !== TractorStatus.MOVING) {
+              return { ...prev, status: TractorStatus.MOVING };
+            }
+            return prev;
+          });
+          if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);
+          statusTimeoutRef.current = setTimeout(() => {
+            setActiveTractor((prev) => {
+              if (!prev) return null;
+              if (prev.status !== TractorStatus.STOPPED) {
+                return { ...prev, status: TractorStatus.STOPPED };
+              }
+              return prev;
+            });
+          }, 2000);
         }
       });
 

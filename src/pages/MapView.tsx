@@ -4,7 +4,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import styled from 'styled-components';
 import { IconChartBar, IconCrosshair, IconMenu, IconMinus, IconPlus, IconTractor, IconX } from "@tabler/icons-react";
 import { Card } from "../components/ui/Card";
-import { Tractor } from "../mock/MockTracktors";
 import { useTractorTracking } from "../context/TractorTrackingContext";
 
 // Extend ImportMeta to include env for Vite
@@ -205,6 +204,14 @@ export function MapView() {
     }
   };
 
+  const getCurrentSpeed = () => {
+    if (activeTractor.status !== 'moving' || gpsData.length === 0) {
+      return '0 km/h';
+    }
+    const speed = gpsData[gpsData.length - 1]?.speed?.toFixed(1) || '0';
+    return `${speed} km/h`;
+  }
+
   return (
     <div className="flex h-full w-full">
       <SlidingPanel collapsed={panelCollapsed}>
@@ -233,9 +240,7 @@ export function MapView() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Speed:</span>
-                    <span className="text-sm font-medium">
-                      {gpsData[gpsData.length - 1]?.speed?.toFixed(1) || '0'} km/h
-                    </span>
+                    <span className="text-sm font-medium">{getCurrentSpeed()}</span>
                   </div>
                 </div>
               </Card>
@@ -283,7 +288,7 @@ export function MapView() {
         </MapControls>
         {gpsData.length > 0 && (
           <StatusBox>
-            Speed: {gpsData[gpsData.length - 1]?.speed?.toFixed(1) || '0'} km/h
+            Speed: {getCurrentSpeed()}
             <br />
             Points: {gpsData.length}
           </StatusBox>

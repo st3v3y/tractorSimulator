@@ -47,7 +47,13 @@ export function TractorList() {
               </TractorDetails>
             </TractorInfo>
             <div className="flex items-center gap-4 flex-row-reverse sm:flex-row justify-between">
-              <StatusBadge status={tractor.status}>{tractor.status.toUpperCase()}</StatusBadge>
+              {activeTractor?.id === tractor.id ? (
+                <StatusBadge status={activeTractor.status}>
+                  {activeTractor.status.toUpperCase()}
+                </StatusBadge>
+              ) : (
+                <StatusBadge status={tractor.status}>{tractor.status.toUpperCase()}</StatusBadge>
+              )}
               <Button
                 onClick={() => handleRequestTractor(tractor)}
                 disabled={tractor.status !== 'available' || activeTractor?.id === tractor.id}>

@@ -1,6 +1,6 @@
 import { useLocation } from 'wouter';
 import './App.css';
-import { mockTractors } from './mock/MockTracktors';
+import { mockTractors } from './mock/MockTractors';
 import { useQuery } from './hooks/useQuery';
 import { SidebarMenu } from './components/SidebarMenu';
 import { Notification } from './components/ui/Notification';

@@ -1,6 +1,8 @@
 export enum TractorStatus {
   AVAILABLE = "available",
   MAINTENANCE = "maintenance",
+  MOVING = "moving",
+  STOPPED = "stopped"
 }
 
 export type Tractor = {
