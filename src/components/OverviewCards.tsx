@@ -14,7 +14,7 @@ export function OverviewCards({
       ? Math.round((activeTractors / (totalTractors - inMaintenanceTractors)) * 100)
       : 0;
   return (
-    <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
       <Card>
         <OverviewItem
           title={'Total Tractors'}

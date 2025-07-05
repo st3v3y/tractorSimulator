@@ -1,7 +1,7 @@
 import { IconBrandSpeedtest, IconRulerMeasure, IconTractor } from "@tabler/icons-react";
-import { DistanceChart } from "../DistanceChart";
+import { DistanceChart } from "../charts/DistanceChart";
 import { Card } from "../ui/Card";
-import { SpeedChart } from "../SpeedChart";
+import { SpeedChart } from "../charts/SpeedChart";
 import { useTractorTracking } from "../../context/TractorTrackingContext";
 import { getCurrentSpeed } from "../../utils/speedUtils";
 import styled from "styled-components";
@@ -11,7 +11,7 @@ const SlidingPanelContainer = styled.div
     shouldForwardProp: (prop) => prop !== 'collapsed', // filter out boolean prop
   })
   .attrs<{ collapsed?: boolean }>((props) => ({
-    className: `bg-white border-r border-gray-200 transition-all duration-300 h-full overflow-y-auto flex-shrink-0 ${
+    className: `bg-slate-50 border-r border-gray-200 transition-all duration-300 h-full overflow-y-auto flex-shrink-0 ${
       props.collapsed
         ? 'w-0 min-w-0 overflow-hidden opacity-0'
         : 'w-96 min-w-[24rem] p-6  opacity-100'
@@ -25,7 +25,7 @@ export function SlidingPanel({ collapsed = false }: { collapsed?: boolean }) {
     <SlidingPanelContainer collapsed={collapsed}>
       <h2 className="text-lg font-semibold mb-4">Tractor Details</h2>
       {activeTractor ? (
-        <>
+        <div className="space-y-4">
           <Card>
             <div className="flex items-center gap-3 mb-3">
               <IconTractor className="w-6 h-6 text-green-600" />
@@ -69,7 +69,7 @@ export function SlidingPanel({ collapsed = false }: { collapsed?: boolean }) {
             </div>
             <DistanceChart gpsData={gpsData} />
           </Card>
-        </>
+        </div>
       ) : (
         <Card>
           <div className="text-center text-gray-500">
